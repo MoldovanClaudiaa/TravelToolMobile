@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "274079922402",
+    "project_id": "traveltoolapp",
+    "storage_bucket": "traveltoolapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:274079922402:android:24a8f871daae62993f46bb",
+        "android_client_info": {
+          "package_name": "com.example.traveltool"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAnyTzC2YlWXRjPA7eS2S-KQwn_f3UA7Tw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
