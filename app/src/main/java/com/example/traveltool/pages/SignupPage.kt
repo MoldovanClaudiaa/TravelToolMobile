@@ -29,17 +29,11 @@ import com.example.traveltool.AuthViewModel
 @Composable
 fun SignupPage(modifier: Modifier = Modifier, navController: NavController, authViewModel: AuthViewModel) {
 
-    var email by remember {
-        mutableStateOf("")
-    }
-
-    var password by remember {
-        mutableStateOf("")
-    }
-
-//    var name by remember { mutableStateOf("") }
-//    var surname by remember { mutableStateOf("") }
-//    var username by remember { mutableStateOf("")}
+    var firstName by remember { mutableStateOf("") }
+    var lastName by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var username by remember { mutableStateOf("")}
 //    var age by remember { mutableStateOf("") }
 
     val authState = authViewModel.authState.observeAsState()
@@ -62,41 +56,41 @@ fun SignupPage(modifier: Modifier = Modifier, navController: NavController, auth
 
         Spacer(modifier = Modifier.height(16.dp))
 
-//        OutlinedTextField(
-//            value = name,
-//            onValueChange = {
-//                name = it
-//            },
-//            label = {
-//                Text(text = "Name")
-//            }
-//        )
-//
-//        Spacer(modifier = Modifier.height(8.dp))
-//
-//        OutlinedTextField(
-//            value = surname,
-//            onValueChange = {
-//                surname = it
-//            },
-//            label = {
-//                Text(text = "Surname")
-//            }
-//        )
-//
-//        Spacer(modifier = Modifier.height(8.dp))
-//
-//        OutlinedTextField(
-//            value = username,
-//            onValueChange = {
-//                username = it
-//            },
-//            label = {
-//                Text(text = "User name")
-//            }
-//        )
-//
-//        Spacer(modifier = Modifier.height(8.dp))
+        OutlinedTextField(
+            value = firstName,
+            onValueChange = {
+                firstName = it
+            },
+            label = {
+                Text(text = "First name")
+            }
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        OutlinedTextField(
+            value = lastName,
+            onValueChange = {
+                lastName = it
+            },
+            label = {
+                Text(text = "Last name")
+            }
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        OutlinedTextField(
+            value = username,
+            onValueChange = {
+                username = it
+            },
+            label = {
+                Text(text = "User name")
+            }
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(
             value = email,
@@ -132,10 +126,11 @@ fun SignupPage(modifier: Modifier = Modifier, navController: NavController, auth
 //            }
 //        )
 
+
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(onClick = {
-            authViewModel.signup(email,password)
+            authViewModel.signup(firstName, lastName, username, email, password)
         },
             enabled = authState.value != AuthState.Loading
         ) {
