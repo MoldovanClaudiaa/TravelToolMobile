@@ -1,19 +1,27 @@
 package com.example.traveltool
 
 //import androidx.datastore.core.message
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.traveltool.data.Users
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
 class AuthViewModel : ViewModel(){
 
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val firestore = FirebaseFirestore.getInstance()
 
+    // MutableLiveData object can be updated to reflect changes in the authentification state
     private val _authState = MutableLiveData<AuthState>()
+    // LiveData object exposes _authState in a read-only way
     val authState: LiveData<AuthState> = _authState
 
     init {
@@ -77,9 +85,57 @@ class AuthViewModel : ViewModel(){
             }
     }
 
+//    fun signout() {
+//        try {
+//            auth.signOut()
+//            _authState.value = AuthState.Unauthenticated
+//        } catch (e: Exception) {
+//            _authState.value = AuthState.Error("Failed to sign out: ${e.message}")
+//        }
+//
+//    }
+
     fun signout() {
-        auth.signOut()
-        _authState.value = AuthState.Unauthenticated
+        Log.d("AuthViewModel", "Attempting to sign out.")
+        try {
+            auth.signOut()
+            Log.d("AuthViewModel", "Firebase sign out successful.")
+            _authState.postValue(AuthState.Unauthenticated)
+        } catch (e: Exception) {
+            Log.e("AuthViewModel", "Failed to sign out: ${e.message}")
+            _authState.postValue(AuthState.Error("Failed to sign out: ${e.message}"))
+        }
+    }
+
+    fun deleteAccount(
+        onSucces: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        val user = FirebaseAuth.getInstance().currentUser
+        val userId = user?.uid
+
+        if(user != null && userId != null) {
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    FirebaseFirestore.getInstance().collection("users").document(userId)
+                        .delete()
+                        .await()
+
+                    user.delete().await()
+
+                    withContext(Dispatchers.Main) {
+                        _authState.value = AuthState.Unauthenticated
+                        onSucces()
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        onError(e.message ?: "An error occurred while deleting account")
+                    }
+                }
+            }
+        } else {
+            onError("User not logged in")
+        }
     }
 
 }

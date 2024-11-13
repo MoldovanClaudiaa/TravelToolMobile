@@ -30,8 +30,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.delay
 
 
 data class BottomNavigationItem(
@@ -46,21 +48,33 @@ data class BottomNavigationItem(
 sealed class Screen(val route: String) {
     object Home : Screen("home")
     object Wishlist : Screen ("wishlist")
-    object ShareJourney : Screen("shareJourney")
+    object ShareJourney : Screen("shareYourJourney")
     object TravelBuddy : Screen("travelBuddy")
     object Profile : Screen("profile")
+    object Login : Screen("login")
 }
 
 @Composable
-fun HomePage(modifier: Modifier = Modifier, authViewModel: AuthViewModel) {
+fun HomePage(
+    modifier: Modifier = Modifier,
+    navController: NavController,
+    authViewModel: AuthViewModel) {
 
-    val navController = rememberNavController()
-
+    // it automatically recomposes the Composable whenever authState changes
     val authState = authViewModel.authState.observeAsState()
 
+    // this block watches for changes in authState.value
     LaunchedEffect(authState.value) {
         when (authState.value) {
-            is AuthState.Unauthenticated -> navController.navigate("login")
+            is AuthState.Unauthenticated -> {
+                // Navigate to the login page if unauthenticated
+                if (navController.currentDestination?.route != "login") {
+                    navController.navigate("login") {
+                        popUpTo(0) { inclusive = true } // Clear back stack to avoid going back to an authenticated screen
+                        launchSingleTop = true
+                    }
+                }
+            }
             else -> Unit
         }
     }
@@ -148,44 +162,14 @@ fun HomePage(modifier: Modifier = Modifier, authViewModel: AuthViewModel) {
         {
             innerPadding ->
 
-                NavHost(
-                    navController = navController,
-                    startDestination = Screen.Home.route,
-                    Modifier.padding(innerPadding)
+                Column(
+                    modifier = Modifier.padding(innerPadding)
                 ) {
-                    composable(Screen.Home.route) {
-                        Column(
-                            modifier = Modifier.padding(innerPadding)
-                        ) {
-                            Text(text = "Welcome to the Home Page!",
-                                modifier = Modifier.padding(16.dp)
-                            )
-                        }
-                    }
-                    composable(Screen.Wishlist.route) {
-                        WishlistPage(
-                          navController = navController,
-                            authViewModel = authViewModel
-                        )
-                    }
-                    composable(Screen.ShareJourney.route) {
-                        ShareJourneyPage(
-                            navController = navController,
-                            authViewModel = authViewModel
-                        )
-                    }
-                    composable(Screen.TravelBuddy.route) {
-                        TravelBuddyPage(
-                            navController = navController,
-                            authViewModel = authViewModel
-                        )
-                    }
-                    composable(Screen.Profile.route) {
-                        ProfilePage(
-                            navController = navController,
-                            authViewModel = authViewModel
-                        )
-                    }
+                    Text(
+                        text = "Welcome to the Home Page!",
+                        modifier = Modifier.padding(16.dp)
+                    )
                 }
+
         }
 }
